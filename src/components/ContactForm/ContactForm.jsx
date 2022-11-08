@@ -1,28 +1,27 @@
 import { useState } from 'react';
 import { Form, Button } from '../ContactForm';
 import { nanoid } from 'nanoid';
-import { useSelector, useDispatch } from 'react-redux/es/exports';
-import { getContacts, addOneContact } from 'redux/contactSlice';
+import { useAddContactMutation, useGetContactsQuery } from 'redux/contactsApi';
 
 export const ContactForm = () => {
   const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
-  const dispatch = useDispatch();
-  const contacts = useSelector(getContacts).contacts;
+  const [phone, setPhone] = useState('');
+  const { data: contacts } = useGetContactsQuery();
+  const [addContact] = useAddContactMutation();
 
   const handleSubmit = e => {
     e.preventDefault();
 
-    addContact({ name, number });
+    addOneContact({ name, phone });
     setName('');
-    setNumber('');
+    setPhone('');
   };
 
-  const addContact = ({ name, number }) => {
+  const addOneContact = ({ name, phone }) => {
     const oneContact = {
       id: nanoid(),
       name,
-      number,
+      phone,
     };
 
     checkForSameName(oneContact);
@@ -39,13 +38,13 @@ export const ContactForm = () => {
       return;
     }
 
-    dispatch(addOneContact(oneContact));
+    addContact(oneContact);
   };
 
   const handleChange = e => {
     e.currentTarget.type === 'text'
       ? setName(e.currentTarget.value)
-      : setNumber(e.currentTarget.value);
+      : setPhone(e.currentTarget.value);
   };
 
   return (
@@ -63,7 +62,7 @@ export const ContactForm = () => {
         />
         <p>Number</p>
         <input
-          value={number}
+          value={phone}
           onChange={handleChange}
           type="tel"
           name="number"
